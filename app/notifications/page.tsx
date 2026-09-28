@@ -21,7 +21,7 @@ export default async function NotificationsPage() {
     .eq('id', user.id)
     .maybeSingle();
 
-  // Fetch notifications joined with actor profile details
+// Fetch notifications joined with actor profile details
   const { data: notifications } = await supabase
     .from('notifications')
     .select(`
@@ -37,6 +37,13 @@ export default async function NotificationsPage() {
     `)
     .eq('recipient_id', user.id)
     .order('created_at', { ascending: false });
+
+  // Mark all unread notifications as read
+  await supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('recipient_id', user.id)
+    .eq('is_read', false);
 
   const notificationList = notifications || [];
 

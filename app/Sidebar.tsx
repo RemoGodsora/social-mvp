@@ -5,13 +5,15 @@ import { signout } from '@/app/actions';
 import ThemeToggle from './ThemeToggle';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import NotificationBadge from '@/app/NotificationBadge';
 
 interface SidebarProps {
   user: any;
   profile: any;
+  unreadCount?: number;
 }
 
-export default function Sidebar({ user, profile }: SidebarProps) {
+export default function Sidebar({ user, profile, unreadCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const profileHref = profile?.username ? `/${profile.username}` : '#';
 
@@ -21,7 +23,7 @@ export default function Sidebar({ user, profile }: SidebarProps) {
     { label: 'Notifications', icon: Bell, href: '/notifications', active: pathname.startsWith('/notifications') },
     { label: 'Bookmarks', icon: Bookmark, href: '/bookmarks', active: pathname.startsWith('/bookmarks') },
     { label: 'Profile', icon: User, href: profileHref, active: pathname === profileHref },
-    { label: 'Settings', icon: Settings, href: '#', active: pathname.startsWith('/settings') },
+    { label: 'Settings', icon: Settings, href: '/settings', active: pathname === '/settings' },
   ];
 
   return (
@@ -39,18 +41,26 @@ export default function Sidebar({ user, profile }: SidebarProps) {
         <nav className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
+            const isNotification = item.label === 'Notifications';
+
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                className={`w-full flex items-center gap-4 px-3 py-3 rounded-full text-base font-medium transition ${
+                className={`w-full flex items-center justify-between px-3 py-3 rounded-full text-base font-medium transition ${
                   item.active
                     ? 'font-bold text-black dark:text-white bg-gray-100/80 dark:bg-neutral-900'
                     : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-900 hover:text-black dark:hover:text-white'
                 }`}
               >
-                <Icon size={22} />
-                <span>{item.label}</span>
+                <div className="flex items-center gap-4">
+                  <Icon size={22} />
+                  <span>{item.label}</span>
+                </div>
+
+                {isNotification && (
+                  <NotificationBadge />
+                )}
               </Link>
             );
           })}

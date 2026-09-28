@@ -5,6 +5,7 @@ import MobileNav from '@/app/MobileNav';
 import PostItem from '@/app/PostItem';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
+import ExploreSearchInput from '@/app/explore/ExploreSearchInput';
 
 interface ExplorePageProps {
   searchParams: Promise<{ q?: string }>;
@@ -27,7 +28,7 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
     currentUserProfile = data;
   }
 
-  // 1. Search matching profiles
+  // 1. Search matching accounts
   let matchedProfiles: any[] = [];
   if (query) {
     const { data: profiles } = await supabase
@@ -70,16 +71,15 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
         <Sidebar user={user} profile={currentUserProfile} />
 
         <main className="flex-1 max-w-xl min-h-screen border-r border-gray-200 dark:border-neutral-800 bg-white dark:bg-black pb-20">
-          <header className="p-4 border-b border-gray-200 dark:border-neutral-800 sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur z-10">
-            <h1 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
-              {query ? `Results for "${query}"` : 'Explore'}
-            </h1>
+          {/* Sticky Header with In-page Search Bar */}
+          <header className="p-3 border-b border-gray-200 dark:border-neutral-800 sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur z-10 space-y-2">
+            <ExploreSearchInput initialQuery={query} />
           </header>
 
           {!query ? (
-            <div className="p-8 text-center text-gray-400 dark:text-neutral-500 space-y-2">
-              <Search className="mx-auto" size={32} />
-              <p className="text-sm">Search for posts, tags, or usernames using the search bar.</p>
+            <div className="p-12 text-center text-gray-400 dark:text-neutral-500 space-y-3">
+              <Search className="mx-auto text-gray-300 dark:text-neutral-700" size={36} />
+              <p className="text-sm font-medium">Type any keyword or handle above to explore posts & users.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -113,14 +113,14 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
                 </div>
               )}
 
-              {/* Matched Posts */}
+              {/* Matched Posts Feed */}
               <div className="divide-y divide-gray-100 dark:divide-neutral-900">
                 {matchedPosts.length > 0 ? (
                   matchedPosts.map((post) => (
                     <PostItem key={post.id} post={post} currentUserId={user?.id} />
                   ))
                 ) : (
-                  <p className="text-center text-gray-400 py-10 text-sm">
+                  <p className="text-center text-gray-400 dark:text-neutral-500 py-10 text-sm">
                     No posts matched &quot;{query}&quot;.
                   </p>
                 )}

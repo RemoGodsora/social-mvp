@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
+import ProfileHeader from './ProfileHeader';
 import Sidebar from '@/app/Sidebar';
 import Widgets from '@/app/Widgets';
 import MobileNav from '@/app/MobileNav';
@@ -82,6 +83,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <Sidebar user={user} profile={currentUserProfile} />
 
         <main className="flex-1 max-w-xl min-h-screen border-r border-gray-200 dark:border-neutral-800 bg-white dark:bg-black pb-20">
+          {/* Top Bar with Back Arrow */}
           <header className="p-4 border-b border-gray-200 dark:border-neutral-800 sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur z-10 flex items-center gap-6">
             <Link
               href="/"
@@ -99,65 +101,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
           </header>
 
-          <div className="p-6 border-b border-gray-200 dark:border-neutral-800 space-y-4">
-            <div className="flex justify-between items-start">
-              <div className="w-20 h-20 rounded-full bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black font-extrabold text-2xl flex items-center justify-center shrink-0">
-                {(profile.full_name || profile.username || 'U')[0]?.toUpperCase()}
-              </div>
+          {/* Dynamic Profile Header with Edit / Follow button */}
+          <ProfileHeader
+            profile={profile}
+            user={user}
+            isFollowing={isFollowing}
+            followingCount={followingCount || 0}
+            followerCount={followerCount || 0}
+          />
 
-              {/* Follow Button (hidden on own profile) */}
-              {user && user.id !== profile.id && (
-                <form action={toggleFollow}>
-                  <input type="hidden" name="targetUserId" value={profile.id} />
-                  <input type="hidden" name="username" value={profile.username} />
-                  <button
-                    type="submit"
-                    className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                      isFollowing
-                        ? 'border border-gray-300 dark:border-neutral-700 hover:border-red-500 hover:text-red-500 text-gray-800 dark:text-neutral-200'
-                        : 'bg-black dark:bg-white text-white dark:text-black hover:opacity-90'
-                    }`}
-                  >
-                    {isFollowing ? 'Following' : 'Follow'}
-                  </button>
-                </form>
-              )}
-            </div>
-
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                {profile.full_name || 'Member'}
-              </h2>
-              <p className="text-sm text-gray-500 dark:text-neutral-400">
-                @{profile.username}
-              </p>
-            </div>
-
-            {profile.bio && (
-              <p className="text-sm text-gray-800 dark:text-neutral-200 whitespace-pre-line leading-relaxed">
-                {profile.bio}
-              </p>
-            )}
-
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-neutral-400">
-              <Calendar size={14} />
-              <span>
-                Joined {format(new Date(profile.created_at || Date.now()), 'MMMM yyyy')}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-5 pt-1 text-sm">
-              <div className="flex gap-1.5 items-center">
-                <span className="font-bold text-gray-900 dark:text-white">{followingCount || 0}</span>
-                <span className="text-gray-500 dark:text-neutral-400">Following</span>
-              </div>
-              <div className="flex gap-1.5 items-center">
-                <span className="font-bold text-gray-900 dark:text-white">{followerCount || 0}</span>
-                <span className="text-gray-500 dark:text-neutral-400">Followers</span>
-              </div>
-            </div>
-          </div>
-
+          {/* Posts Feed */}
           <div className="divide-y divide-gray-100 dark:divide-neutral-900">
             {userPosts.length > 0 ? (
               userPosts.map((post: any) => (

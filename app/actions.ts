@@ -288,3 +288,70 @@ export async function toggleBookmark(formData: FormData) {
   revalidatePath('/explore');
 }
 
+export async function markNotificationsAsRead() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return;
+
+  await supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('recipient_id', user.id)
+    .eq('is_read', false);
+
+  revalidatePath('/notifications');
+  revalidatePath('/', 'layout');
+}
+
+export async function updateProfile(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Unauthorized');
+
+  const fullName = ((formData.get('fullName') as string) || '').trim();
+  const bio = ((formData.get('bio') as string) || '').trim();
+  const avatarFile = formData.get('avatar') as File | null;
+
+  let avatarUrl: string | null = null;
+
+  // 1. Upload new avatar if selected
+  if (avatarFile && avatarFile.size > 0) {
+    const fileExt = avatarFile.name.split('.').pop();
+    const fileName = `avatar-${user.id}-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('media')
+      .upload(fileName, avatarFile);
+
+    if (!uploadError) {
+      const { data: publicUrlData } = supabase.storage
+        .from('media')
+        .getPublicUrl(fileName);
+      avatarUrl = publicUrlData.publicUrl;
+    }
+  }
+
+  // 2. Prepare payload
+  const updatePayload: Record<string, any> = {
+    full_name: fullName,
+    bio: bio,
+  };
+
+  if (avatarUrl) {
+    updatePayload.avatar_url = avatarUrl;
+  }
+
+  // 3. Update database profile record
+  await supabase
+    .from('profiles')
+    .update(updatePayload)
+    .eq('id', user.id);
+
+  // 4. Revalidate cache
+  revalidatePath('/');
+  revalidatePath('/[username]', 'page');
+  revalidatePath('/settings');
+}
+
