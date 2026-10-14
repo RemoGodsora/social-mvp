@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { Trash2, MessageCircle, Send, Bookmark } from 'lucide-react';
 import { deletePost, createComment, toggleBookmark } from '@/app/actions';
+import { Coffee } from 'lucide-react';
 import LikeButton from '@/app/LikeButton';
 import ImageModal from '@/app/ImageModal';
+import TipModal from '@/app/TipModal';
 
 interface PostItemProps {
   post: any;
@@ -20,6 +22,7 @@ export default function PostItem({ post, currentUserId, isBookmarked = false }: 
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [isImageOpen, setIsImageOpen] = useState(false);
+  const [isTipOpen, setIsTipOpen] = useState(false);
 
   const timeAgo = formatDistanceToNowStrict(new Date(post.created_at), {
     addSuffix: true,
@@ -103,6 +106,29 @@ export default function PostItem({ post, currentUserId, isBookmarked = false }: 
               className="w-full h-auto object-cover max-h-96 group-hover/img:opacity-95 transition"
             />
           </div>
+        )}
+
+        {/* UPI Chai Tip Button */}
+        {post.profiles?.upi_id && currentUserId !== post.user_id && (
+          <button
+            type="button"
+            onClick={() => setIsTipOpen(true)}
+            className="p-1.5 text-gray-400 hover:text-amber-500 transition rounded-full flex items-center gap-1 text-xs"
+            title="Gift a Chai"
+          >
+            <Coffee size={16} />
+            <span className="hidden sm:inline">Tip</span>
+          </button>
+        )}
+
+        {/* Tip Modal */}
+        {post.profiles?.upi_id && (
+          <TipModal
+            authorName={post.profiles.full_name || post.profiles.username}
+            upiId={post.profiles.upi_id}
+            isOpen={isTipOpen}
+            onClose={() => setIsTipOpen(false)}
+          />
         )}
 
         {/* Action Row */}

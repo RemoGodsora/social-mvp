@@ -10,7 +10,8 @@ export async function createPost(formData: FormData) {
 
   if (!user) throw new Error('Unauthorized');
 
-  const content = ((formData.get('content') as string) || '').trim();
+  const rawContent = (formData.get('content') as string) || '';
+  const content = rawContent.replace(/\r\n/g, '\n').trim();
   const imageFile = formData.get('image') as File | null;
 
   const hasImage = Boolean(imageFile && imageFile.size > 0);
@@ -312,6 +313,7 @@ export async function updateProfile(formData: FormData) {
 
   const fullName = ((formData.get('fullName') as string) || '').trim();
   const bio = ((formData.get('bio') as string) || '').trim();
+  const upiId = ((formData.get('upiId') as string) || '').trim();
   const avatarFile = formData.get('avatar') as File | null;
 
   let avatarUrl: string | null = null;
@@ -337,13 +339,14 @@ export async function updateProfile(formData: FormData) {
   const updatePayload: Record<string, any> = {
     full_name: fullName,
     bio: bio,
+    upi_id: upiId || null,
   };
 
   if (avatarUrl) {
     updatePayload.avatar_url = avatarUrl;
   }
 
-  // 3. Update database profile record
+  // 3. Update database record
   await supabase
     .from('profiles')
     .update(updatePayload)

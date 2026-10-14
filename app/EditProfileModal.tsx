@@ -119,6 +119,24 @@ export default function EditProfileModal({ profile, isOpen, onClose }: EditProfi
               {loading ? 'Saving...' : 'Save'}
             </button>
           </div>
+
+          {/* UPI ID */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 mb-1">
+              UPI ID (for receiving tips)
+            </label>
+            <input
+              type="text"
+              name="upiId"
+              defaultValue={profile?.upi_id || ''}
+              placeholder="e.g. name@oksbi or 9876543210@paytm"
+              pattern="^[\w.-]+@[\w.-]+$"
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl text-sm outline-none focus:border-black dark:focus:border-white text-gray-900 dark:text-white"
+            />
+            <p className="text-[11px] text-gray-400 mt-1">
+              Supporters can tap "Tip Chai" to pay you directly via PhonePe, GPay, or Paytm.
+            </p>
+          </div>
         </form>
       </div>
     </div>

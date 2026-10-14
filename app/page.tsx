@@ -38,7 +38,7 @@ export default async function Home({ searchParams }: HomePageProps) {
       content,
       image_url,
       created_at,
-      profiles(username, full_name),
+      profiles(username, full_name, upi_id),
       likes(id, user_id),
       comments(
         id,
