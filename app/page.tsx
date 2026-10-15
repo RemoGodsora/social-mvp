@@ -136,7 +136,11 @@ export default async function Home({ searchParams }: HomePageProps) {
           )}
 
           {/* Posts Feed */}
-          <RealtimeFeed initialPosts={postList} currentUserId={user?.id} />
+          <RealtimeFeed
+            initialPosts={postList}
+            currentUserId={user?.id}
+            tab={tab}
+          />
         </main>
 
         <Widgets postCount={postList.length} />

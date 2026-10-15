@@ -46,7 +46,7 @@ export default function PostItem({ post, currentUserId, isBookmarked = false }: 
 
   return (
     <>
-      <article className="p-4 space-y-3 hover:bg-gray-50/50 dark:hover:bg-neutral-900/30 transition">
+      <article className="p-4 space-y-3 transition-all duration-200 hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40 hover:border-l-2 hover:border-l-black dark:hover:border-l-white border-l-2 border-l-transparent">
         {/* Author Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">

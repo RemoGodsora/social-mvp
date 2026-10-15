@@ -4,13 +4,16 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import PostItem from '@/app/PostItem';
 import { useRouter } from 'next/navigation';
+import EmptyState from '@/app/EmptyState';
+import { Sparkles, Users } from 'lucide-react';
 
 interface RealtimeFeedProps {
   initialPosts: any[];
   currentUserId?: string;
+  tab?: string;
 }
 
-export default function RealtimeFeed({ initialPosts, currentUserId }: RealtimeFeedProps) {
+export default function RealtimeFeed({ initialPosts, currentUserId, tab }: RealtimeFeedProps) {
   const [posts, setPosts] = useState(initialPosts);
   const supabase = createClient();
   const router = useRouter();
@@ -68,8 +71,26 @@ export default function RealtimeFeed({ initialPosts, currentUserId }: RealtimeFe
     };
   }, [supabase]);
 
-  if (posts.length === 0) {
-    return <p className="text-center text-gray-400 py-10 text-sm">No updates yet.</p>;
+if (posts.length === 0) {
+    if (tab === 'following') {
+      return (
+        <EmptyState
+          icon={Users}
+          title="No updates from accounts you follow"
+          description="Follow more people on Space to curate your personal timeline."
+          actionHref="/explore"
+          actionLabel="Find People to Follow"
+        />
+      );
+    }
+
+    return (
+      <EmptyState
+        icon={Sparkles}
+        title="The feed is completely quiet"
+        description="Be the first to share an update, thought, or photo with the community."
+      />
+    );
   }
 
   return (
