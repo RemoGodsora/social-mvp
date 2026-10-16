@@ -6,6 +6,7 @@ import ThemeToggle from './ThemeToggle';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NotificationBadge from '@/app/NotificationBadge';
+import { MessageSquare } from 'lucide-react';
 
 interface SidebarProps {
   user: any;
@@ -23,6 +24,7 @@ export default function Sidebar({ user, profile, unreadCount = 0 }: SidebarProps
     { label: 'Notifications', icon: Bell, href: '/notifications', active: pathname.startsWith('/notifications') },
     { label: 'Bookmarks', icon: Bookmark, href: '/bookmarks', active: pathname.startsWith('/bookmarks') },
     { label: 'Profile', icon: User, href: profileHref, active: pathname === profileHref },
+    { label: 'Messages', icon: MessageSquare, href: '/messages', active: pathname.startsWith('/messages') },
     { label: 'Settings', icon: Settings, href: '/settings', active: pathname === '/settings' },
   ];
 

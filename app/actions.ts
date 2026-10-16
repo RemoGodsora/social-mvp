@@ -358,3 +358,79 @@ export async function updateProfile(formData: FormData) {
   revalidatePath('/settings');
 }
 
+export async function sendMessage(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Unauthorized');
+
+  const recipientId = formData.get('recipientId') as string;
+  const rawContent = (formData.get('content') as string) || '';
+  const content = rawContent.trim() || null;
+  const imageFile = formData.get('image') as File | null;
+
+  const hasImage = Boolean(imageFile && imageFile.size > 0);
+
+  // If there is neither text nor an image, cancel
+  if (!recipientId || (!content && !hasImage)) {
+    return;
+  }
+
+  let imageUrl: string | null = null;
+
+  if (hasImage && imageFile) {
+    const fileExt = imageFile.name.split('.').pop() || 'jpg';
+    const fileName = `dm-${user.id}-${Date.now()}.${fileExt}`;
+
+    const arrayBuffer = await imageFile.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Upload to MEDIA bucket (used across your feed)
+    const { error: uploadError } = await supabase.storage
+      .from('MEDIA')
+      .upload(fileName, buffer, {
+        contentType: imageFile.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      // Fallback to lowercase 'media' if needed
+      const { error: fallbackError } = await supabase.storage
+        .from('media')
+        .upload(fileName, buffer, {
+          contentType: imageFile.type,
+          upsert: false,
+        });
+
+      if (fallbackError) {
+        console.error('Upload Error:', uploadError, fallbackError);
+        throw new Error(`Media upload failed: ${uploadError.message}`);
+      }
+
+      const { data } = supabase.storage.from('media').getPublicUrl(fileName);
+      imageUrl = data.publicUrl;
+    } else {
+      const { data } = supabase.storage.from('MEDIA').getPublicUrl(fileName);
+      imageUrl = data.publicUrl;
+    }
+  }
+
+  // Prevent inserting if upload failed and no text was typed
+  if (!content && !imageUrl) {
+    throw new Error('Message is empty');
+  }
+
+  const { error } = await supabase.from('messages').insert({
+    sender_id: user.id,
+    recipient_id: recipientId,
+    content,
+    image_url: imageUrl,
+  });
+
+  if (error) {
+    throw new Error(`Failed to send message: ${error.message}`);
+  }
+
+  revalidatePath(`/messages/${recipientId}`);
+  revalidatePath('/messages');
+}

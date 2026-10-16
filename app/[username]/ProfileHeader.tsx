@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar } from 'lucide-react';
+import Link from 'next/link';
+import { Calendar, Mail } from 'lucide-react';
 import { format } from 'date-fns';
 import EditProfileModal from '@/app/EditProfileModal';
 import { toggleFollow } from '@/app/actions';
@@ -46,21 +47,31 @@ export default function ProfileHeader({
               Edit Profile
             </button>
           ) : user ? (
-            /* Visitor: Follow / Unfollow */
-            <form action={toggleFollow}>
-              <input type="hidden" name="targetUserId" value={profile.id} />
-              <input type="hidden" name="username" value={profile.username} />
-              <button
-                type="submit"
-                className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                  isFollowing
-                    ? 'border border-gray-300 dark:border-neutral-700 hover:border-red-500 hover:text-red-500 text-gray-800 dark:text-neutral-200'
-                    : 'bg-black dark:bg-white text-white dark:text-black hover:opacity-90'
-                }`}
+            /* Visitor: Follow / Unfollow + Direct Message */
+            <div className="flex items-center gap-2">
+              <form action={toggleFollow}>
+                <input type="hidden" name="targetUserId" value={profile.id} />
+                <input type="hidden" name="username" value={profile.username} />
+                <button
+                  type="submit"
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                    isFollowing
+                      ? 'border border-gray-300 dark:border-neutral-700 hover:border-red-500 hover:text-red-500 text-gray-800 dark:text-neutral-200'
+                      : 'bg-black dark:bg-white text-white dark:text-black hover:opacity-90'
+                  }`}
+                >
+                  {isFollowing ? 'Following' : 'Follow'}
+                </button>
+              </form>
+
+              <Link
+                href={`/messages/${profile.id}`}
+                className="p-2 border border-gray-300 dark:border-neutral-700 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition text-gray-700 dark:text-gray-300"
+                title="Send Message"
               >
-                {isFollowing ? 'Following' : 'Follow'}
-              </button>
-            </form>
+                <Mail size={18} />
+              </Link>
+            </div>
           ) : null}
         </div>
 

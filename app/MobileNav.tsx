@@ -4,6 +4,7 @@ import { Home, Bookmark, User, Search, Bell, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NotificationBadge from '@/app/NotificationBadge';
+import { MessageSquare } from 'lucide-react';
 
 interface MobileNavProps {
   currentUsername?: string;
@@ -21,6 +22,7 @@ export default function MobileNav({ currentUsername, unreadCount = 0, userId }: 
     { label: 'Notifications', icon: Bell, href: '/notifications', active: pathname.startsWith('/notifications') },
     { label: 'Bookmarks', icon: Bookmark, href: '/bookmarks', active: pathname.startsWith('/bookmarks') },
     { label: 'Profile', icon: User, href: profileHref, active: pathname === profileHref },
+    { label: 'Messages', icon: MessageSquare, href: '/messages', active: pathname.startsWith('/messages') },
     { label: 'Settings', icon: Settings, href: '/settings', active: pathname === '/settings' },
   ];
 
